@@ -1,0 +1,6 @@
+aiohttp
+pandas
+colorama
+pyfiglet
+tqdm
+geoip2

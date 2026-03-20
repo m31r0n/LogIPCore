@@ -1,84 +1,73 @@
 # LogIPCore
 
+Herramienta CLI para análisis de reputación de IPs y parsing de logs de seguridad orientada a **DFIR**.
+Consulta AbuseIPDB, VirusTotal y CriminalIP, y genera reportes XLSX y HTML con gráficas.
+
 ## Instalación
 
-1. Clona el repositorio:
-   ```
-   git clone https://github.com/m31r0n/LogIPCore
-   cd LogIPCore
-   ```
-2. Descarga la base de datos **GeoLite2-Country.mmdb** desde [MaxMind](https://dev.maxmind.com/geoip/geoip2/geolite2/) y colócala en el directorio adecuado (por ejemplo, en la carpeta `data/`).
+```bash
+git clone https://github.com/m31r0n/LogIPCore
+cd LogIPCore
+pip install -r requirements.txt
+```
 
-3. Configura tus API keys y otros parámetros en el archivo `config/config.ini`.
+Configura tus API keys:
+```bash
+cp .env.example .env
+# Edita .env con tus keys
+```
 
-4. Instala las dependencias requeridas:
-   ```
-   pip install -r requirements.txt
-   ```
+Descarga [GeoLite2-Country.mmdb](https://dev.maxmind.com/geoip/geoip2/geolite2/) en `data/`.
 
 ## Uso
 
-Ejecuta la herramienta desde la raíz del proyecto:
-
-```
-python -m src.main
+```bash
+python run.py
 ```
 
-Al iniciar, se mostrará un menú interactivo con las siguientes opciones:
+### Opciones
 
-1. **Analizar archivo de IPs simples:**  
-   - Procesa un archivo con IPs y consulta su reputación usando las APIs seleccionadas.
-   - Genera un CSV con los siguientes campos:
-     - `Analyzed_IP`: IP analizada.
-     - `IP_Type`: Tipo de IP (External).
-     - `IPAbuse`, `VirusTotal`, `CriminalIP`, `TOR`, `MaliciousScore`: Resultados de las APIs.
-     - `Country`: País determinado por GeoLite2.
+| # | Función | Output |
+|---|---------|--------|
+| 1 | Analizar archivo de IPs | XLSX (4 pestañas) + HTML con gráficas |
+| 2 | Analizar logs genéricos | CSV parseado + XLSX/HTML (opcional) |
+| 3 | Analizar logs Fortinet | CSV con Connection_Status |
 
-2. **Analizar archivos o carpeta de logs:**  
-   - Extrae campos clave de los logs y genera un CSV estructurado.
-   - Genera un **resumen global** con:
-     - Total de IPs encontradas y únicas.
-     - Total de IPs externas.
-     - **Top 10 IPs más recurrentes**.
+### Output XLSX (4 pestañas)
 
-3. **Analizar logs Fortinet:**  
-   - Procesa archivos de logs de Fortinet.
-   - Extrae los campos relevantes.
-   - Determina si la conexión fue exitosa o no.
-   - Añade la columna `Connection_Status` en el CSV generado.
+- **Resumen**: IP, Riesgo, Score, AbuseIPDB, VirusTotal, CriminalIP, TOR, País
+- **Infraestructura**: VPN, TOR, Proxy, Hosting, Cloud, Scanner, Darkweb
+- **Red**: Puertos abiertos, CVEs, dominios, honeypot, IDS
+- **WHOIS**: País, ciudad, ASN, organización
 
-4. **Salir:**  
-   - Cierra la herramienta.
+### Reporte HTML
 
----
+Informe visual con gráficas (Chart.js) diseñado para copiar/pegar en informes DFIR:
+- Distribución de riesgo (doughnut) y países (barras)
+- Hallazgos principales (VPN, TOR, scanners, darkweb, vulnerabilidades)
+- Tablas detalladas por sección
 
-## Módulos y Extensiones Futuras
+## Estructura
 
-- **Configuración Avanzada:**  
-  - Soporte para múltiples perfiles de configuración (producción, pruebas).
-  - Validación y actualización dinámica de parámetros.
-
-- **Reportes y Visualización:**  
-  - Generar reportes en **HTML** o **PDF**.
-  - Incluir **gráficos** sobre actividad sospechosa, tendencias y distribución geográfica de IPs.
-
-- **Correlación de Eventos:**  
-  - Relacionar diferentes fuentes de logs.
-  - Detectar patrones complejos o ataques coordinados.
-
-- **Integración con SIEM y Alertas:**  
-  - Enviar **notificaciones** por correo o Slack ante eventos sospechosos.
-  - Integración con sistemas SIEM para análisis en tiempo real.
-
-- **Almacenamiento de Datos:**  
-  - Implementar una base de datos para búsquedas y análisis históricos.
-
----
-
-## Contribuciones
-
-Las contribuciones son bienvenidas. Si deseas colaborar, revisa las directrices en el archivo `CONTRIBUTING.md` (próximamente).
+```
+LogIPCore/
+├── run.py              # Punto de entrada
+├── .env                # API keys (gitignored)
+├── data/               # GeoLite2-Country.mmdb
+├── output/             # Reportes generados (gitignored)
+├── config/             # config.ini, fortinet_patterns.json
+├── src/
+│   ├── main.py         # Menú y flujo principal
+│   ├── ip_analyzer.py  # Consultas async a APIs
+│   ├── report.py       # Generador XLSX + HTML
+│   ├── log_parser.py   # Parsing de logs
+│   ├── fortinet_analyzer.py
+│   ├── config.py       # Carga .env + config.ini
+│   ├── utils.py        # Helpers
+│   └── banner.py
+└── tests/
+```
 
 ## Licencia
 
-Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+MIT

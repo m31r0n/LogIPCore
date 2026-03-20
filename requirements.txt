@@ -4,3 +4,5 @@ colorama
 pyfiglet
 tqdm
 geoip2
+python-dotenv
+openpyxl

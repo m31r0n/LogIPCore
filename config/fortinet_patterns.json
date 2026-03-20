@@ -1,0 +1,28 @@
+{
+  "traffic_forward": {
+    "type": "traffic",
+    "subtype": "forward",
+    "success_field": "utmaction",
+    "success_value": "allow"
+  },
+  "vpn_event": {
+    "type": "event",
+    "subtype": "vpn",
+    "success_conditions": ["status=success", "result=ok"]
+  },
+  "system_event": {
+    "type": "event",
+    "subtype": "system",
+    "success_patterns": ["login successful", "logged in successfully"]
+  },
+  "user_event": {
+    "type": "event",
+    "subtype": "user",
+    "success_patterns": ["authentication success"]
+  },
+  "endpoint_event": {
+    "type": "event",
+    "subtype": "endpoint",
+    "success_patterns": ["connection added", "connection closed"]
+  }
+}
